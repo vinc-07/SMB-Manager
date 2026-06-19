@@ -6,12 +6,6 @@ class WindowManager {
     
     private var addConnectionWindowController: NSWindowController?
     private var preferencesWindowController: NSWindowController?
-	@AppStorage("selectedLanguage") private var selectedLanguage: String = "zh-Hant"
-		
-	// 建立一個方便內部呼叫的閉包，減少程式碼長度
-	private func local(_ key: String) -> String {
-		MenuLocalization.text(for: key, lang: selectedLanguage)
-	}
     
     func showAddConnection(manager: SMBManager) {
         if addConnectionWindowController == nil {

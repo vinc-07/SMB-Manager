@@ -44,9 +44,7 @@ struct SMB_ManagerApp: App {
 					let connected = manager.isConnected(url: item.url)
 					Button(action: {
 						if connected {
-							if let volName = URL(string: item.url)?.pathComponents.last {
-								manager.disconnect(volumeName: volName)
-							}
+							manager.disconnect(remoteURL: item.url)
 						} else {
 							manager.connect(urlString: item.url)
 						}
@@ -70,10 +68,9 @@ struct SMB_ManagerApp: App {
 			Text(local("currentConnections"))
 				.font(.headline)
 
-			let filteredConnections = manager.connectedVolumes.filter { volName in
-				// 排除常用清單中已包含的掛載名稱
+			let filteredConnections = manager.connectedVolumes.filter { volURL in
 				!manager.favoriteList.contains { fav in
-					URL(string: fav.url)?.pathComponents.last == volName
+					manager.getCleanURL(fav.url) == volURL
 				}
 			}
 
@@ -83,13 +80,13 @@ struct SMB_ManagerApp: App {
 			} else {
 				ForEach(filteredConnections, id: \.self) { volName in
 					let safeURL = manager.getSafeRemoteURL(for: volName)
-					
+					let displayName = volName.split(separator: "/").last.map(String.init) ?? volName
 					// 第一行：主要按鈕，顯示名稱與退出的圖示，點擊觸發斷開連線
 					Button(action: {
-						manager.disconnect(volumeName: volName)
+						manager.disconnect(remoteURL: safeURL)
 					}) {
 						Label(
-							title: { Text("\(volName)") },
+							title: { Text("\(displayName)") },
 							icon: {
 								Image(systemName: "multiply.circle")
 							}
